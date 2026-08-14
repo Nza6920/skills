@@ -2,3 +2,4 @@
 /loki-query/
 /.agents/
 /skills-lock.json
+*:Zone.Identifier*
