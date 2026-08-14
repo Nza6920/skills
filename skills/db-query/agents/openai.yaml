@@ -1,0 +1,6 @@
+interface:
+  display_name: "DB Query"
+  short_description: "Run guarded read-only MySQL queries by profile"
+  default_prompt: "Use $db-query to run a bounded read-only query against an explicitly selected database profile."
+policy:
+  allow_implicit_invocation: false
