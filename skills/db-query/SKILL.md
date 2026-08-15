@@ -10,10 +10,10 @@ Treat every invocation as access to one specific database environment. Keep
 mutations outside this skill: for a write request, provide read-only verification
 SQL and identify the separate approval path required for execution.
 
-1. Verify the tooling. Resolve both `db-query` and `usql` on `PATH`. If either is
-   missing, read the [installation instructions](https://github.com/Nza6920/db-cli#install),
-   report that dependency and its current installation command, then stop.
-   Complete this step when both commands resolve without implicit installation.
+1. Verify the tooling. Resolve `db-query` on `PATH`. If it is missing, read the
+   [installation instructions](https://github.com/Nza6920/db-cli#install),
+   report the current installation command, then stop. Complete this step when
+   `db-query` resolves without implicit installation.
 2. Establish the target. Run `db-query profiles` and require exactly one profile
    named by the user. Ask the user to choose when it is missing or ambiguous.
    Complete this step when the selected profile exists and is explicit.
@@ -34,8 +34,11 @@ SQL and identify the separate approval path required for execution.
 5. Execute through stdin with
    `db-query query --profile <profile> --stdin`. Add
    `--confirm-profile <profile>` only for the approved production pair. Keep JSON
-   output for analysis. Complete this step when the CLI returns a structured
-   result or error while credential values remain in the environment.
+   output for analysis. Treat `CONNECTION_FAILED`, `QUERY_FAILED`,
+   `QUERY_TIMEOUT`, and `RESULT_ENCODING_FAILED` as structured database evidence,
+   and propose uniquely aliased columns after a duplicate-column error. Complete
+   this step when the CLI returns a structured result or error while credential
+   values remain in the environment.
 6. Report the database evidence and resulting conclusion separately. Name the
    profile, distinguish returned rows from inference, and keep results in the
    conversation unless the user requested an artifact. Complete this step when
