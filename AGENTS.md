@@ -1,40 +1,66 @@
 # Repository Guidelines
 
-## Project Structure & Module Organization
+## Project Structure & Sources of Truth
 
-This repository publishes reusable Agent Skills, not the CLI implementations they invoke.
+This repository coordinates independent Agent Skill and CLI projects. It does
+not publish duplicate root-level skill copies.
 
-- `skills/<skill-name>/SKILL.md` is the entry point for each published skill.
-- `README.md` and `README.zh-CN.md` document the collection in English and Chinese; keep their facts and links aligned.
-- `db-cli/` and `loki-query/` are ignored, independent Git worktrees used to develop the corresponding CLIs. Commit CLI changes in those repositories, not here.
-- `.agents/` and `skills-lock.json` are local tooling inputs and are ignored.
+- `db-cli/.agents/skills/db-query/SKILL.md` is the source of truth for
+  `$db-query`.
+- `loki-query/.agents/skills/loki-query/SKILL.md` is the source of truth for
+  `$loki-query`.
+- Keep the root `skills/` directory absent. Change a skill only in its owning
+  subproject.
+- Keep `README.md` and `README.zh-CN.md` factually and semantically aligned.
+- `db-cli/` and `loki-query/` are ignored, independent Git worktrees. Commit
+  their CLI, skill, and project documentation changes inside those repositories.
+- Root `.agents/` and `skills-lock.json` are ignored local tooling inputs, not
+  published skill sources.
 
-There are currently no repository-level source, test, or asset directories. Keep skill-specific references or scripts beside their `SKILL.md` when they become necessary.
+There are no root source, test, or asset directories. The root repository owns
+only workspace guidance and the project index.
 
-## Build, Test, and Development Commands
+## Validation Commands
 
-This Markdown-only repository has no build step. Use lightweight checks before submitting changes:
+The root repository has no build step. Validate the workspace boundary and the
+changed repository explicitly:
 
 ```bash
-rg --files skills -g 'SKILL.md'  # list published skill entry points
-git diff --check                 # detect whitespace errors
-git status --short               # verify the intended change set
+test -f db-cli/.agents/skills/db-query/SKILL.md
+test -f loki-query/.agents/skills/loki-query/SKILL.md
+test ! -d skills
+git diff --check
+git status --short
+git -C db-cli status --short
+git -C loki-query status --short
 ```
 
-Test a changed skill by invoking it in a representative prompt and confirming that every branch stops or completes at its stated criterion. CLI implementation tests belong in the linked CLI repository.
+Run a subproject's documented tests when its CLI changes. For a skill-only
+change, inspect every invocation branch and confirm that each step has a
+checkable completion criterion.
 
-## Writing Style & Naming Conventions
+## Writing Conventions
 
-Use kebab-case for skill directories, and make the frontmatter `name` exactly match the directory name. Each `SKILL.md` must begin with valid YAML frontmatter containing a concise, trigger-oriented `description`. Retain `disable-model-invocation: true` for skills that access databases, production logs, or other explicitly selected environments.
+Within each subproject, use kebab-case skill directories and match frontmatter
+`name` to the directory name. Retain `disable-model-invocation: true` and
+`allow_implicit_invocation: false` for skills that access databases, production
+logs, or other explicitly selected environments.
 
-Write instructions in direct English, organize procedures as numbered steps, and give each step a checkable completion criterion. Prefer links to CLI documentation over duplicating flags that may become stale. Wrap Markdown prose near the existing style and use fenced blocks for commands or prompt examples.
+Write skill procedures in direct English as numbered steps with checkable
+completion criteria. Prefer links to the owning CLI documentation over copied
+syntax that can become stale. Keep credentials in environment variables and
+make read-only and approval boundaries explicit.
 
-## Testing Guidelines
-
-Review every modified path and invocation branch. Confirm that examples name a profile where required, sensitive values remain in environment variables, and read-only boundaries are explicit. When README content changes, update both language versions in the same change.
+When project README content changes, update both language versions in the same
+subproject commit. Root README changes must also keep both languages aligned.
 
 ## Commit & Pull Request Guidelines
 
-The repository has no commit history yet, so no established message convention exists. Use short, imperative subjects such as `Add db-query skill` or `Clarify Loki approval boundary`.
+Commit each change in the repository that owns it. Stage exact paths so an
+independent worktree or unrelated local tooling is not included accidentally.
+Use short imperative subjects such as `Clarify database approval boundary` or
+`Document Loki query limits`.
 
-Pull requests should explain the behavior changed, list validation performed, and link the associated CLI change when relevant. Include screenshots only for rendered Markdown issues; otherwise provide a concise before/after example.
+Pull requests should explain the behavior changed and validation performed.
+Link related changes across the root index and a subproject when both are
+updated.

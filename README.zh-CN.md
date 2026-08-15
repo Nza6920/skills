@@ -2,38 +2,46 @@
 
 [English](README.md) | 简体中文
 
-个人维护的 Agent Skills 集合，主要用于为数据库查询和日志排查提供可重复、带安全边界的操作流程。
+本仓库是 `db-query`、`loki-query` Agent Skills 及其 CLI 的协调索引。每个独立
+子项目同时维护 CLI 实现和仓库内 skill；根仓库不再保留重复的 skill 副本。
 
-可用 skill 位于 [`skills/`](skills/) 目录。每个 skill 负责指导 Agent 如何调用对应的 CLI；CLI 本身是独立项目，不随本仓库发布。
+## 唯一事实来源
 
-## 可用 Skills
+| Skill | 作用 | 权威来源 |
+| --- | --- | --- |
+| `db-query` | 通过明确选择的 profile 执行受保护的 MySQL 只读查询。要求使用数据库限定表名、限制查询成本，并在访问 production 前批准完整且未变化的 profile 与 SQL。 | [Nza6920/db-cli `.agents/skills/db-query`](https://github.com/Nza6920/db-cli/tree/main/.agents/skills/db-query) |
+| `loki-query` | 通过明确选择的 profile 查询 Grafana Loki。限制查询时间窗和次数，并将日志证据、推断与待核实事项分开报告。 | [Nza6920/grafana-loki-query-cli `.agents/skills/loki-query`](https://github.com/Nza6920/grafana-loki-query-cli/tree/master/.agents/skills/loki-query) |
 
-| Skill | 作用 | 对应 CLI | CLI 源码 |
-| --- | --- | --- | --- |
-| [`db-query`](skills/db-query/SKILL.md) | 通过指定 profile 执行受保护的 MySQL 只读查询。要求使用数据库限定表名、限制明细查询行数，并在访问生产环境前展示 SQL、等待明确确认。 | `db-query` | [Nza6920/db-cli](https://github.com/Nza6920/db-cli) |
-| [`loki-query`](skills/loki-query/SKILL.md) | 通过指定 profile 查询 Grafana Loki 日志。限制单次查询时间窗和迭代次数，并将日志证据、推断与待确认项分开报告。 | `loki-query` | [Nza6920/grafana-loki-query-cli](https://github.com/Nza6920/grafana-loki-query-cli) |
+在当前工作区中，权威入口为：
 
-这两个 skill 均采用显式调用，避免在普通对话中意外访问数据库或日志系统：
+```text
+db-cli/.agents/skills/db-query/SKILL.md
+loki-query/.agents/skills/loki-query/SKILL.md
+```
+
+`db-cli/` 和 `loki-query/` 是被根仓库忽略的独立 Git worktree。Skill 变更应在
+对应子项目中修改并提交。根目录有意不再设置 `skills/` 目录。
+
+## 使用方式
+
+1. 从上表对应项目安装并配置 CLI。
+2. 将项目中的 `.agents/skills/<name>` 目录复制或链接到 Agent 可发现的
+   skills 目录。
+3. 确认 CLI 已加入 `PATH`，再显式调用 skill：
 
 ```text
 $db-query 使用 uat profile 查询 logistics.t_waybill 中最近 20 条记录
 $loki-query 使用 prod profile 查询最近 30 分钟内订单 252143 的异常日志
 ```
 
-## 使用方式
+两个 skill 都必须显式调用，避免普通对话访问数据库或日志环境。数据库连接
+信息和 Grafana Token 保留在各 CLI 的 profile 与环境变量中，不写入本仓库。
 
-1. 从上表对应的 GitHub 仓库安装并配置 CLI。
-2. 将所需的 `skills/<name>` 目录复制或链接到 Agent 可发现的 skills 目录。
-3. 确认 CLI 已加入 `PATH`，再通过 `$<skill-name>` 显式调用 skill。
-
-数据库连接信息和 Grafana Token 由各 CLI 的 profile 与环境变量管理，不应写入本仓库。
-
-## 目录结构
+## 工作区结构
 
 ```text
-skills/
-├── db-query/
-│   └── SKILL.md
-└── loki-query/
-    └── SKILL.md
+db-cli/                         # 独立 Git worktree
+└── .agents/skills/db-query/    # db-query 唯一事实来源
+loki-query/                     # 独立 Git worktree
+└── .agents/skills/loki-query/  # loki-query 唯一事实来源
 ```
