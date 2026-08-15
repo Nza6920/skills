@@ -2,15 +2,17 @@
 
 ## Project Structure & Sources of Truth
 
-This repository coordinates independent Agent Skill and CLI projects. It does
-not publish duplicate root-level skill copies.
+This repository distributes Agent Skills and coordinates their independent CLI
+projects. The root `skills/` directory contains published copies synchronized
+from the owning subprojects.
 
 - `db-cli/.agents/skills/db-query/SKILL.md` is the source of truth for
   `$db-query`.
 - `loki-query/.agents/skills/loki-query/SKILL.md` is the source of truth for
   `$loki-query`.
-- Keep the root `skills/` directory absent. Change a skill only in its owning
-  subproject.
+- `skills/db-query/` and `skills/loki-query/` are the corresponding published
+  copies. Change a skill in its owning subproject first, then synchronize the
+  complete directory into `skills/`.
 - Keep `README.md` and `README.zh-CN.md` factually and semantically aligned.
 - `db-cli/` and `loki-query/` are ignored, independent Git worktrees. Commit
   their CLI, skill, and project documentation changes inside those repositories.
@@ -18,7 +20,7 @@ not publish duplicate root-level skill copies.
   published skill sources.
 
 There are no root source, test, or asset directories. The root repository owns
-only workspace guidance and the project index.
+workspace guidance, the project index, and the published skill copies.
 
 ## Validation Commands
 
@@ -28,7 +30,14 @@ changed repository explicitly:
 ```bash
 test -f db-cli/.agents/skills/db-query/SKILL.md
 test -f loki-query/.agents/skills/loki-query/SKILL.md
-test ! -d skills
+test -f skills/db-query/SKILL.md
+test -f skills/db-query/agents/openai.yaml
+test -f skills/loki-query/SKILL.md
+test -f skills/loki-query/agents/openai.yaml
+cmp db-cli/.agents/skills/db-query/SKILL.md skills/db-query/SKILL.md
+cmp db-cli/.agents/skills/db-query/agents/openai.yaml skills/db-query/agents/openai.yaml
+cmp loki-query/.agents/skills/loki-query/SKILL.md skills/loki-query/SKILL.md
+cmp loki-query/.agents/skills/loki-query/agents/openai.yaml skills/loki-query/agents/openai.yaml
 git diff --check
 git status --short
 git -C db-cli status --short
@@ -56,10 +65,11 @@ subproject commit. Root README changes must also keep both languages aligned.
 
 ## Commit & Pull Request Guidelines
 
-Commit each change in the repository that owns it. Stage exact paths so an
-independent worktree or unrelated local tooling is not included accidentally.
-Use short imperative subjects such as `Clarify database approval boundary` or
-`Document Loki query limits`.
+Commit source changes in the repository that owns them and synchronized
+published copies in this root repository. Stage exact paths so an independent
+worktree or unrelated local tooling is not included accidentally. Use short
+imperative subjects such as `Clarify database approval boundary` or `Document
+Loki query limits`.
 
 Pull requests should explain the behavior changed and validation performed.
 Link related changes across the root index and a subproject when both are

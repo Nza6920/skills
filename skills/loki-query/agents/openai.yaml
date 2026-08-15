@@ -1,0 +1,6 @@
+interface:
+  display_name: "Loki Query"
+  short_description: "Query Grafana Loki logs with bounded iteration"
+  default_prompt: "Use $loki-query to investigate production logs for this incident."
+policy:
+  allow_implicit_invocation: false
