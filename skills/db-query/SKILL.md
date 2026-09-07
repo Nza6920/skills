@@ -19,8 +19,10 @@ SQL and identify the separate approval path required for execution.
    Complete this step when the selected profile exists and is explicit.
 3. Draft one read-only statement for one concrete question. Use fully qualified
    `database.table` names. Bound a detail read with an outer literal `LIMIT` no
-   greater than 1000; use `SHOW`, `DESCRIBE`, or `EXPLAIN` for schema or plan
-   evidence. For complex joins, subqueries, or broad scans, state the performance
+   greater than the selected profile's `max_rows` (default 1000). Read that
+   profile's configuration to resolve the cap. For UNION or nested queries, the
+   LIMIT must bound the whole result; grouped and window queries also need it.
+   Use `SHOW`, `DESCRIBE`, or `EXPLAIN` for schema or plan evidence. For complex joins, subqueries, or broad scans, state the performance
    risk and use `EXPLAIN` when plan evidence is needed. If the cost cannot be
    bounded confidently, split the investigation into multiple bounded statements
    executed one at a time. Complete this step when the exact SQL satisfies
