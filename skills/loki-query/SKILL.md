@@ -16,11 +16,13 @@ Use the installed `loki-query` CLI for read-only log or range-metric investigati
    ask for it and stop. Complete this step when both are known without guessing.
 2. Authorize one query. Choose `log` unless the user explicitly needs a metric
    aggregation. Build complete LogQL and choose the narrowest useful time
-   window. Use the default log contract for log evidence and explicitly select
-   the metric query type for range aggregations. Metric JSONL records contain a
-   string value instead of a log line. Resolve current type-specific options,
-   defaults, and record fields from the repository README and CLI help rather
-   than copying syntax into this skill.
+   window. Use the default log contract for log evidence. For range
+   aggregations, explicitly pass `--query-type metric`; its JSONL records use
+   type `metric_sample` with `timestamp`, `labels`, and a string `value`, while
+   log records use type `log_entry` and `line`. Resolve all other current
+   type-specific options and defaults from the
+   [CLI README](https://github.com/Nza6920/grafana-loki-query-cli#querying) and
+   CLI help rather than copying them into this skill.
    Cap every query at 24 hours. For a window beyond one hour, proceed only with
    explicit approval in the current user request. Show the profile, exact time
    window, and LogQL in a commentary update before execution. Complete this step
