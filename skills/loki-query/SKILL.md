@@ -1,12 +1,12 @@
 ---
 name: loki-query
-description: Investigate Grafana Loki logs with the read-only repository CLI.
+description: Investigate Grafana Loki logs and range metrics with the read-only repository CLI.
 disable-model-invocation: true
 ---
 
 # Loki query
 
-Use the installed `loki-query` CLI for read-only log investigation.
+Use the installed `loki-query` CLI for read-only log or range-metric investigation.
 
 1. Establish the query boundary. Require exactly one profile named by the user.
    Run `loki-query config path`, read that TOML file, and use the selected
@@ -14,15 +14,23 @@ Use the installed `loki-query` CLI for read-only log investigation.
    selector. Use only the environment variable name in `token_env`; leave its
    credential value in the environment. If the profile or selector is missing,
    ask for it and stop. Complete this step when both are known without guessing.
-2. Authorize one query. Build complete LogQL and choose the narrowest useful
-   time window. Default to `--since 15m`, `--limit 100`, and `--output jsonl`.
+2. Authorize one query. Choose `log` unless the user explicitly needs a metric
+   aggregation. Build complete LogQL and choose the narrowest useful time
+   window. For logs, default to `--query-type log --since 15m --limit 100
+   --output jsonl`; `--direction` is also log-only. For metrics, use explicit
+   `--query-type metric`, omit `--limit` and `--direction`, and add `--step`
+   only when the requested resolution requires it. Loki accepts step values as
+   seconds or duration strings. JSONL log records have type `log_entry` and a
+   `line`; metric records have type `metric_sample` and a string `value`.
    Cap every query at 24 hours. For a window beyond one hour, proceed only with
    explicit approval in the current user request. Show the profile, exact time
    window, and LogQL in a commentary update before execution. Complete this step
    when the visible query boundary is within policy and authorized.
 3. Execute the query. Treat an empty result as a successful query with no
-   matches. Complete this step when the CLI returns entries, an empty result, or
-   a handled error.
+   matches. Exit status `4` plus an incomplete-results warning means stdout may
+   contain valid partial evidence; report it as incomplete, never as complete
+   success. Complete this step when the CLI returns records, an empty result,
+   partial evidence, or a handled error.
 4. Follow the evidence. Trace identifiers and refine LogQL only when another
    query can answer the user's question. Before each follow-up, state its reason
    and return to step 2. Obtain new approval when switching profiles or proposing
