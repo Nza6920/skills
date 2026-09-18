@@ -16,12 +16,11 @@ Use the installed `loki-query` CLI for read-only log or range-metric investigati
    ask for it and stop. Complete this step when both are known without guessing.
 2. Authorize one query. Choose `log` unless the user explicitly needs a metric
    aggregation. Build complete LogQL and choose the narrowest useful time
-   window. For logs, default to `--query-type log --since 15m --limit 100
-   --output jsonl`; `--direction` is also log-only. For metrics, use explicit
-   `--query-type metric`, omit `--limit` and `--direction`, and add `--step`
-   only when the requested resolution requires it. Loki accepts step values as
-   seconds or duration strings. JSONL log records have type `log_entry` and a
-   `line`; metric records have type `metric_sample` and a string `value`.
+   window. Use the default log contract for log evidence and explicitly select
+   the metric query type for range aggregations. Metric JSONL records contain a
+   string value instead of a log line. Resolve current type-specific options,
+   defaults, and record fields from the repository README and CLI help rather
+   than copying syntax into this skill.
    Cap every query at 24 hours. For a window beyond one hour, proceed only with
    explicit approval in the current user request. Show the profile, exact time
    window, and LogQL in a commentary update before execution. Complete this step
@@ -38,10 +37,10 @@ Use the installed `loki-query` CLI for read-only log or range-metric investigati
    after five CLI queries in one user request, including the first. Complete
    this step when the evidence answers the question or the remaining gap cannot
    be closed within the authorized boundary and query cap.
-5. Report matching log evidence, resulting inferences, and unresolved checks as
-   separate sections. Include only relevant production content and keep
-   credentials out of the report. Complete this step when every conclusion is
-   traceable to returned JSONL entries.
+5. Report matching log or metric evidence, resulting inferences, and unresolved
+   checks as separate sections. Include only relevant production content and
+   keep credentials out of the report. Complete this step when every conclusion
+   is traceable to returned JSONL records.
 
 Resolve current syntax and options from `loki-query --help` and
 `loki-query query --help`.
