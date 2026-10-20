@@ -1,0 +1,6 @@
+interface:
+  display_name: "Redis Query"
+  short_description: "Query Redis safely by explicit environment"
+  default_prompt: "Use $redis-query with the uat environment to inspect the type, TTL, and a bounded preview of an exact Redis key."
+policy:
+  allow_implicit_invocation: false

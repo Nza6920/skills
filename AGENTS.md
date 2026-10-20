@@ -4,7 +4,7 @@
 
 This repository distributes Agent Skills and coordinates their independent CLI
 projects. The root `skills/` directory contains published copies synchronized
-from the owning subprojects.
+from the owning subprojects and root-owned skills using external tools.
 
 - `db-cli/.agents/skills/db-query/SKILL.md` is the source of truth for
   `$db-query`.
@@ -13,14 +13,17 @@ from the owning subprojects.
 - `skills/db-query/` and `skills/loki-query/` are the corresponding published
   copies. Change a skill in its owning subproject first, then synchronize the
   complete directory into `skills/`.
+- `skills/redis-query/` is the authoritative, root-owned skill source. It uses
+  the official `redis-cli`; there is no owning CLI subproject to synchronize.
 - Keep `README.md` and `README.zh-CN.md` factually and semantically aligned.
 - `db-cli/` and `loki-query/` are ignored, independent Git worktrees. Commit
   their CLI, skill, and project documentation changes inside those repositories.
 - Root `.agents/` and `skills-lock.json` are ignored local tooling inputs, not
   published skill sources.
 
-There are no root source, test, or asset directories. The root repository owns
-workspace guidance, the project index, and the published skill copies.
+There are no root CLI source, test, or asset directories. The root repository
+owns workspace guidance, the project index, the published skill copies, and
+the standalone Redis skill.
 
 ## Validation Commands
 
@@ -34,6 +37,10 @@ test -f skills/db-query/SKILL.md
 test -f skills/db-query/agents/openai.yaml
 test -f skills/loki-query/SKILL.md
 test -f skills/loki-query/agents/openai.yaml
+test -f skills/redis-query/SKILL.md
+test -f skills/redis-query/agents/openai.yaml
+test -f skills/redis-query/references/connection.md
+test -f skills/redis-query/references/queries.md
 cmp db-cli/.agents/skills/db-query/SKILL.md skills/db-query/SKILL.md
 cmp db-cli/.agents/skills/db-query/agents/openai.yaml skills/db-query/agents/openai.yaml
 cmp loki-query/.agents/skills/loki-query/SKILL.md skills/loki-query/SKILL.md
